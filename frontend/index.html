@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Resume Analyzer - Smart Fit & Gap Analysis</title>
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <h1 class="brand-title">ResumeMatch AI</h1>
+          <span class="brand-subtitle">Gemini-Powered Candidate Evaluator</span>
+        </div>
+      </div>
+      <div class="system-status">
+        <div class="status-dot" id="apiStatusDot"></div>
+        <span id="apiStatusText">Checking API...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    
+    <!-- Hero Banner -->
+    <section class="hero-section">
+      <div class="hero-badge">✨ AI-Powered Recruitment Intelligence</div>
+      <h2 class="hero-title">Evaluate Resumes Against <span>Job Descriptions</span></h2>
+      <p class="hero-desc">Upload a candidate resume and job description to get instant match scoring, verified strengths, skill gap analysis, and tailored interview questions.</p>
+    </section>
+
+    <!-- Upload Grid -->
+    <section class="upload-grid">
+      
+      <!-- Resume Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon icon-blue">📄</div>
+          <div>
+            <h3 class="card-title">Candidate Resume</h3>
+            <p class="card-desc">Upload the candidate's PDF resume</p>
+          </div>
+        </div>
+
+        <div class="dropzone" id="resumeDropzone">
+          <input type="file" id="resumeInput" accept="application/pdf">
+          <span class="dropzone-icon">📥</span>
+          <p class="dropzone-text">Click or drag & drop Resume PDF</p>
+          <p class="dropzone-subtext">PDF up to 10MB</p>
+        </div>
+
+        <div class="file-pill" id="resumePill">
+          <div class="file-info">
+            <span class="file-badge">PDF</span>
+            <div>
+              <div class="file-name" id="resumeFileName">resume.pdf</div>
+              <div class="file-size" id="resumeFileSize">0 KB</div>
+            </div>
+          </div>
+          <button type="button" class="remove-btn" id="resumeRemoveBtn" title="Remove file">✕</button>
+        </div>
+      </div>
+
+      <!-- Job Description Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon icon-purple">🎯</div>
+          <div>
+            <h3 class="card-title">Job Description</h3>
+            <p class="card-desc">Upload the target role PDF</p>
+          </div>
+        </div>
+
+        <div class="dropzone" id="jdDropzone">
+          <input type="file" id="jdInput" accept="application/pdf">
+          <span class="dropzone-icon">📥</span>
+          <p class="dropzone-text">Click or drag & drop Job Description PDF</p>
+          <p class="dropzone-subtext">PDF up to 10MB</p>
+        </div>
+
+        <div class="file-pill" id="jdPill">
+          <div class="file-info">
+            <span class="file-badge">PDF</span>
+            <div>
+              <div class="file-name" id="jdFileName">job_description.pdf</div>
+              <div class="file-size" id="jdFileSize">0 KB</div>
+            </div>
+          </div>
+          <button type="button" class="remove-btn" id="jdRemoveBtn" title="Remove file">✕</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Action Bar -->
+    <div class="action-wrapper">
+      <button class="analyze-btn" id="analyzeBtn" disabled>
+        <div class="spinner"></div>
+        <span class="btn-text">🚀 Run Comprehensive Analysis</span>
+      </button>
+    </div>
+
+    <!-- Results Section -->
+    <section class="results-section" id="resultsSection">
+      
+      <div class="results-header">
+        <h2 class="results-title">Evaluation Report</h2>
+        <button class="export-btn" id="exportPdfBtn">🖨️ Export / Print Report</button>
+      </div>
+
+      <!-- Match Score Banner -->
+      <div class="score-banner">
+        <div class="score-chart-container">
+          <div class="score-circle-wrapper">
+            <svg class="score-circle-svg" viewBox="0 0 120 120">
+              <circle class="score-circle-bg" cx="60" cy="60" r="50"></circle>
+              <circle class="score-circle-fill" id="scoreCircleFill" cx="60" cy="60" r="50"></circle>
+            </svg>
+            <div class="score-number">
+              <span id="scoreValue">0</span><small>%</small>
+            </div>
+          </div>
+          <div class="score-narrative">
+            <h3 id="scoreStatusTitle">Evaluating...</h3>
+            <p id="scoreStatusDesc">Calculating compatibility between resume credentials and requirements.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Breakdown Grid -->
+      <div class="details-grid">
+        
+        <!-- Strengths -->
+        <div class="detail-card">
+          <div class="detail-title">
+            <span>✅ Candidate Strengths</span>
+            <span class="badge-count" id="strengthsCount">0</span>
+          </div>
+          <div class="tag-list" id="strengthsList">
+            <!-- Dynamic tags -->
+          </div>
+        </div>
+
+        <!-- Missing Skills -->
+        <div class="detail-card">
+          <div class="detail-title">
+            <span>⚠️ Missing or Unverified Skills</span>
+            <span class="badge-count" id="missingCount">0</span>
+          </div>
+          <div class="tag-list" id="missingList">
+            <!-- Dynamic tags -->
+          </div>
+        </div>
+
+        <!-- Relevant Experience -->
+        <div class="detail-card">
+          <div class="detail-title">
+            <span>💼 Relevant Experience Alignment</span>
+            <span class="badge-count" id="expCount">0</span>
+          </div>
+          <ul class="item-list exp" id="experienceList">
+            <!-- Dynamic items -->
+          </ul>
+        </div>
+
+        <!-- Improvement Areas -->
+        <div class="detail-card">
+          <div class="detail-title">
+            <span>📈 Areas for Improvement</span>
+            <span class="badge-count" id="improveCount">0</span>
+          </div>
+          <ul class="item-list improve" id="improveList">
+            <!-- Dynamic items -->
+          </ul>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="detail-card full-width">
+          <div class="detail-title">
+            <span>💡 Actionable Recommendations</span>
+            <span class="badge-count" id="recCount">0</span>
+          </div>
+          <ul class="item-list rec" id="recommendationsList">
+            <!-- Dynamic items -->
+          </ul>
+        </div>
+
+        <!-- Interview Questions -->
+        <div class="detail-card full-width">
+          <div class="detail-title">
+            <span>🎯 Tailored Interview Questions</span>
+            <span class="badge-count" id="questionsCount">0</span>
+          </div>
+          <div id="questionsContainer">
+            <!-- Dynamic questions -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>Powered by FastAPI & Google Gemini API • Structured LLM Evaluation</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
